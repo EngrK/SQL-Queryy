@@ -1,0 +1,57 @@
+
+CREATE TABLE Accounts (
+    A_ID INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Balance DECIMAL(18,2)
+);
+
+INSERT INTO Accounts (A_ID, Name, Balance) VALUES
+(1, 'Thor', 8000.00),
+(2, 'Hulk', 4000.00),
+(3, 'Thanos', 12000.00),
+(4, 'Loki', 3000.00),
+(5, 'Stark', 15000.00);
+
+CREATE TABLE Transac_History (
+    T_ID INT,
+    Date DATE,
+    Amount DECIMAL(18,2),
+    A_ID INT FOREIGN KEY REFERENCES Accounts(A_ID)
+);
+
+INSERT INTO Transac_History (T_ID, Date, Amount, A_ID) VALUES
+(1, '2020-09-02', -1500.00, 3),
+(2, '2020-09-03', 3000.00, 5),
+(2, '2020-09-03', -3000.00, 1);
+
+BEGIN TRANSACTION;
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+UPDATE Accounts
+SET Balance = Balance - 1000
+WHERE Name = 'Stark';
+
+
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+SELECT Balance FROM Accounts WHERE Name = 'Stark';
+
+ROLLBACK TRANSACTION;
+
+
+
+BEGIN TRANSACTION;
+SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+SELECT * FROM Accounts;
+
+INSERT INTO Accounts (A_ID, Name, Balance) VALUES (6, 'Clint', 19000.00);
+
+
+UPDATE Accounts
+SET Balance = Balance - 500
+WHERE Name = 'Thor';
+
+COMMIT TRANSACTION;
+
+INSERT INTO Transac_History (T_ID, Date, Amount, A_ID)
+VALUES (3, GETDATE(), -500, 1); -- Example log
+
+
